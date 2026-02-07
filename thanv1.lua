@@ -1,15 +1,52 @@
--- ตัวดักจับขั้นเทพ: ดักทั้ง HttpGet และการ Load โค้ด
+-- [[ 1. ส่วนตัวดัก: เอาอันใหม่ที่คัดลอกลงคีย์บอร์ดมาวางตรงนี้ ]] --
+local function EasyCopy(url)
+    setclipboard(tostring(url))
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "🔓 เจาะสำเร็จ!",
+        Text = "คัดลอกลิงก์สคริปต์ลงเครื่องแล้ว!",
+        Duration = 5
+    })
+    print("🎯 COPIED: " .. tostring(url))
+end
+
+local old; old = hookmetamethod(game, "__index", function(self, key)
+    if key == "HttpGet" then
+        return function(instance, url, ...)
+            if not url:find("key") and not url:find("checkpoint") and not url:find("verify") then
+                EasyCopy(url)
+            end
+            return old(instance, url, ...)
+        end
+    end
+    return old(self, key)
+end)
+
+-- [[ 2. ส่วนตัวสคริปต์หลัก (Luraph): เริ่มต่อจากตรงนี้ลงไป ]] --
+-- ที่มีคำว่า return({O0=function... หรือรูปแมวของพี่นั่นแหละครับ
+return({O0=function(z,z) ... -- โค้ดเดิมยาวๆ ของพี่
+
+
+-- [[ ตัวแก้เผ็ดระบบหาคีย์หลายชั้น ]] --
+local oldLoadstring; oldLoadstring = hookfunction(loadstring, function(code)
+    -- ถ้ามันมีการแอบรันโค้ดหลังจากเช็คคีย์ (หรือพยายามเช็ค) ให้มันปริ้นออกมา
+    if code:match("http") or #code > 1000 then 
+        print("🔓 เจอตัวสคริปต์หลักแล้วพี่!")
+        setclipboard(code) -- ก๊อปโค้ดหลักมาให้เลย
+        print("--- COPY TO CLIPBOARD DONE ---")
+    end
+    return oldLoadstring(code)
+end)
+
 local oldHttpGet; oldHttpGet = hookfunction(game.HttpGet, function(self, url, ...)
-    print("🎯 FOUND LINK: " .. url)
-    setclipboard(url)
+    -- ดักจับลิงก์ที่มันชอบแอบไปดึงมาตอนเราหาคีย์
+    if not url:find("key") and not url:find("checkpoint") then
+        print("🎯 ลิงก์นี้อาจจะเป็นสคริปต์ตัวจริง: " .. url)
+    end
     return oldHttpGet(self, url, ...)
 end)
 
-local oldLoad; oldLoad = hookfunction(loadstring, function(code)
-    print("🔓 DETECTED EXECUTING CODE!")
-    -- ถ้าพี่เห็นโค้ดมั่วๆ ยาวๆ โผล่มาใน Console นั่นแหละคือตัว Steam ที่มันถอดรหัสออกมาแล้ว
-    return oldLoad(code)
-end)
+-- รันไอ้ตัวที่พี่ดักมาได้ (hhh.txt) ต่อท้ายตรงนี้เลย
+-- หรือจะก๊อปโค้ดจาก hhh.txt มาวางต่อท้ายบรรทัดนี้ก็ได้ครับ
 
 
 -- This file was protected using Luraph Obfuscator v14.3 [https://lura.ph/]
