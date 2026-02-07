@@ -1,9 +1,9 @@
-local old; old = hookfunction(game.HttpGet, function(self, url)
-    -- ปริ้นใน Console
-    print("LINK FOUND: " .. url)
-    -- ก๊อปปี้ลงเครื่องพี่ด้วย (เผื่อมองไม่เห็นใน Log)
-    setclipboard(url) 
-    return old(self, url)
+local oldLoadstring; oldLoadstring = hookfunction(loadstring, function(code)
+    -- ถ้ามีการสั่งรันโค้ดอะไรก็ตาม ให้มันปริ้นโค้ดนั้นออกมาดูเลย!
+    print("--- DETECTED CODE RUN ---")
+    print(code) 
+    setclipboard(code) -- ก๊อปโค้ดที่มันรันลงเครื่องพี่ด้วย
+    return oldLoadstring(code)
 end)
 
 -- This file was protected using Luraph Obfuscator v14.3 [https://lura.ph/]
