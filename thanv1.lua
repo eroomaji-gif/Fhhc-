@@ -1,10 +1,16 @@
-local oldLoadstring; oldLoadstring = hookfunction(loadstring, function(code)
-    -- ถ้ามีการสั่งรันโค้ดอะไรก็ตาม ให้มันปริ้นโค้ดนั้นออกมาดูเลย!
-    print("--- DETECTED CODE RUN ---")
-    print(code) 
-    setclipboard(code) -- ก๊อปโค้ดที่มันรันลงเครื่องพี่ด้วย
-    return oldLoadstring(code)
+-- ตัวดักจับขั้นเทพ: ดักทั้ง HttpGet และการ Load โค้ด
+local oldHttpGet; oldHttpGet = hookfunction(game.HttpGet, function(self, url, ...)
+    print("🎯 FOUND LINK: " .. url)
+    setclipboard(url)
+    return oldHttpGet(self, url, ...)
 end)
+
+local oldLoad; oldLoad = hookfunction(loadstring, function(code)
+    print("🔓 DETECTED EXECUTING CODE!")
+    -- ถ้าพี่เห็นโค้ดมั่วๆ ยาวๆ โผล่มาใน Console นั่นแหละคือตัว Steam ที่มันถอดรหัสออกมาแล้ว
+    return oldLoad(code)
+end)
+
 
 -- This file was protected using Luraph Obfuscator v14.3 [https://lura.ph/]
 
